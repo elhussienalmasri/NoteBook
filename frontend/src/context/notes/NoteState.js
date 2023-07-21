@@ -5,6 +5,10 @@ const NoteState = (props) => {
   const notesInitial = [];
 
   const [notes, setnotes] = useState(notesInitial);
+  const [numberOfPages, setNumberOfPages] = useState(0);
+  const [sortPag,setSortPag,] = useState([]);
+  console.log(sortPag);
+  const pages = new Array(numberOfPages).fill(null).map((v, i) => i);
 
   //get all notes
   const getNote = async () => {
@@ -19,6 +23,27 @@ const NoteState = (props) => {
     const json = await response.json();
     setnotes(json);
   };
+  
+    //get pagintaion
+    const getpagination = async (pageNumber) => {
+      const response = await fetch( `api/notes/pagination?page=${pageNumber}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("token"),
+        },
+      });
+
+      const result =()=> response.json()
+        .then(({ totalPages, notes }) => {
+        setSortPag(notes);
+        setNumberOfPages(totalPages);
+      })
+     
+      result();
+      // console.log(sortPag)
+      // console.log(numberOfPages)
+    };
 
   //add a note
   const addNote = async (title, description, tag) => {
@@ -77,7 +102,6 @@ const NoteState = (props) => {
         element.title = title;
         element.description = description;
         element.tag = tag;
-        element.date = Date.now();
         break;
       }
     }
@@ -85,7 +109,7 @@ const NoteState = (props) => {
   };
 
   return (
-    <NoteContext.Provider value={{ notes, getNote, addNote, deleteNote, editNote }}>
+    <NoteContext.Provider value={{ notes, getNote, addNote, deleteNote, editNote ,getpagination,pages,sortPag,numberOfPages}}>
       {props.children}
     </NoteContext.Provider>
   );

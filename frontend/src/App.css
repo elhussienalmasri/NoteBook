@@ -28,6 +28,21 @@ body{
   color: #61dafb;
 }
 
+/* Notes js button  */
+
+.focusNone:focus{
+  outline: none;
+  box-shadow: none;
+}
+
+.focusNone:hover{
+  color: #0d6efd
+}
+
+.focusNone.start{
+  padding-left: 0;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
