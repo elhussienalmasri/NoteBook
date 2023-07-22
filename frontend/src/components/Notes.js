@@ -2,18 +2,22 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import NoteContext from '../context/notes/noteContext'
 import EditNote from './EditNote';
 import NoteItems from './NoteItems';
-import { useNavigate } from 'react-router-dom'
+import {  useNavigate} from "react-router-dom";
+
+
 
 function Notes(props) {
     const context = useContext(NoteContext);
-    const { notes, getNote, editNote } = context;
+    const { notes, getNote, editNote ,getpagination,pages,sortPag,numberOfPages} = context;
     const [enote, setenote] = useState({ id: "", title: "", description: "", tag: "default" })
     const navigate = useNavigate();
     const [search, setSearch] = useState("")
     const [sort, setSort] = useState("newest");
     const [tag, setTags] = useState("All");
+    const [pageNumber, setPageNumber] = useState(0);
+   
 
-    //sort and filter
+  
     const transformedNotes = () => {
       let sortedNotes = notes;
       sortedNotes = sortedNotes.sort((a, b) => {
@@ -23,6 +27,9 @@ function Notes(props) {
           ? bCreatedAt - aCreatedAt
           : aCreatedAt - bCreatedAt;
       });
+      if (tag==="All"&&search===""){
+            sortedNotes =sortPag
+      }
 
       if (tag && tag !== "All") {
         sortedNotes = sortedNotes?.filter(
@@ -43,6 +50,19 @@ function Notes(props) {
       // eslint-disable-next-line
     }, []);
 
+    useEffect(() => {
+      if (localStorage.getItem("token")) {
+        
+        getpagination(pageNumber);
+
+        
+        
+      } else {
+        navigate("/login");
+      }
+      // eslint-disable-next-line
+    }, [pageNumber]);
+
     const ref = useRef(null);
     const refclose = useRef(null);
 
@@ -61,6 +81,14 @@ function Notes(props) {
       refclose.current.click();
 
       props.showAlert("Note is updated successfully", "success");
+    };
+
+    const gotoPrevious = () => {
+      setPageNumber(Math.max(0, pageNumber - 1));
+    };
+  
+    const gotoNext = () => {
+      setPageNumber(Math.min(numberOfPages - 1, pageNumber + 1));
     };
 
     return (
@@ -105,7 +133,7 @@ function Notes(props) {
             </div>
           </div>
         </div>
-
+        
         <EditNote
           reference={ref}
           closeref={refclose}
@@ -114,7 +142,12 @@ function Notes(props) {
           handleChange={handleEdit}
         />
 
-        <div className="row mb-5">
+        <div className="row mb-5 ">
+          {
+            search==="" && tag==="All"  && numberOfPages>1  &&
+            <h3 class="text-start mb-3"  >Page  {pageNumber + 1} of {numberOfPages} Pages </h3>
+          }
+      
           <div className="mx-3">
             {notes.length === 0 && "No notes to display.."}
           </div>
@@ -132,9 +165,41 @@ function Notes(props) {
                 />
               );
             })}
+
+          {search === "" && tag === "All"   && numberOfPages>1&&
+
+            <div className='d-flex justify-content-start my-3'>
+              <button disabled={pageNumber===0} onClick={gotoPrevious} className="btn focusNone start">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M9.224 1.553a.5.5 0 0 1 .223.67L6.56 8l2.888 5.776a.5.5 0 1 1-.894.448l-3-6a.5.5 0 0 1 0-.448l3-6a.5.5 0 0 1 .67-.223z" />
+                </svg>
+              </button>
+              {pages.map((pageIndex) => (
+                <div className='text-center'>
+                
+                  <button className={pageNumber === pageIndex ? "btn btn-primary" : "btn"} key={pageIndex} onClick={() => { setPageNumber(pageIndex) }}>
+                   
+                    {pageIndex + 1}
+                   
+
+                  </button>
+                
+                </div>
+              ))}
+              <button disabled={pageNumber+1===numberOfPages}  onClick={gotoNext} className="btn focusNone">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-compact-right" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 0 1 .671.223l3 6a.5.5 0 0 1 0 .448l-3 6a.5.5 0 1 1-.894-.448L9.44 8 6.553 2.224a.5.5 0 0 1 .223-.671z" />
+                </svg>
+              </button>
+            </div>
+
+          }
         </div>
       </>
     );
 }
 
 export default Notes
+
+

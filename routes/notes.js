@@ -21,6 +21,19 @@ router.get("/fetchallnotes", fetchuser, async (req, res) => {
   }
 });
 
+ router.get("/pagination", fetchuser, async (req, res) => {
+  const PAGE_SIZE =12 ;
+  const page = parseInt(req.query.page || "0");
+  const total = await Notes.countDocuments({ user: req.user.id });
+  const notes = await Notes.find({ user: req.user.id })
+    .limit(PAGE_SIZE)
+    .skip(PAGE_SIZE * page);
+  res.json({
+    totalPages: Math.ceil(total / PAGE_SIZE),
+    notes
+  });
+});
+
 //Route 2: Add a new  note using POST
 router.post(
   "/addnote",
