@@ -29,7 +29,8 @@ function NoteItems(props) {
                         </p>
                     </div>
                     <p><b>{note.tag}</b></p>
-                    <p className="card-text">{note.description}</p>
+                    <p dangerouslySetInnerHTML={{ __html: note.description }} />
+                    {/* <p className="card-text">{note.description}</p> */}
                     <p className='text-secondary small text-end '>
                         <small>{date} </small>
                     </p>
